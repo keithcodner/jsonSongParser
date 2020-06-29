@@ -1,48 +1,82 @@
 <?php
-error_reporting(0);
+//error_reporting(0);
 include 'sh.php';
 
 //Global Vars
 $mySubject = $_POST["mySubject"];
 $myTextArea = $_POST["myTextArea"];
 
-mkdir('song_list/'.$folder_friendly_date_time);
-mkdir('song_list/'.$folder_friendly_date_time."/".$get_product_title);
+$songFileOne = 'Big_Song_Collection_cleaned.json';
+$songFileTwo = 'EasySlides_English_cleaned.json';
+$songFileThree = 'EasyWorship_BCOG_cleaned.json';
 
-//loop through and save each image link
-$obj = hopToNextAll($getLink, '//*[@id="ProductThumbs"]/*/a/@href');
+//$songFileToProcess = 'Big_Song_Collection_cleaned.json';
+//$songFileToProcess = 'EasySlides_English_cleaned.json';
+$songFileToProcess = 'EasyWorship_BCOG_cleaned.json';
+
+$SongFilePath = 'song_list/'.$folder_friendly_date_time.'_'.$songFileToProcess;
+
+mkdir('song_list/'.$folder_friendly_date_time.'_'.$songFileToProcess);
+//mkdir('song_list/'.$folder_friendly_date_time."/".$get_product_title);
+
+$songData = json_decode(file_get_contents("data/cleaned/".$songFileToProcess), true);
+$songContents = $songData['Songs'];
+
+//print_r($songData);
+//echo var_export($songData, true); 
+
+function clean($string) {
+   //$string = str_replace(' ', ' ', $string); // Replaces all spaces with hyphens.
+
+   return preg_replace('/[^A-Za-z0-9\-]/', ' ', $string); // Removes special chars.
+}
+
 $ic = 0;
 $link_list = "";
 
-for ($i = 0, $j = count( $imageListSplitted ); $i < $j; $i++) 
+for ($i = 0, $j = count( $songContents ); $i < $j; $i++) 
 { 
 
-	$my_save_dir = $folder_friendly_date_time."/".$get_product_title;
-    $filename = basename($clean_link);
-    $complete_save_loc = $my_save_dir.'/'.$filename;
+	$songTitle = $songContents[$i]['Text'];
+	$songAuthor = $songContents[$i]['Author'];
+	$songGUID = $songContents[$i]['Guid'];
+	$songCopyright = $songContents[$i]['Copyright'];
+	$fullVerses = '';
+	$fullVersesText = '';
+	$fullStart = '';
 	
-	$fp = fopen($complete_save_loc,'wb');
+	//$songVerse = $songContents[$i]['Verses'][0]['Text'];
+	$songVerse = $songContents[$i]['Verses'];
+	for ($k = 0, $l = count( $songVerse ); $k < $l; $k++) {
+		$verseCount = $k + 1;
+		$fullVerses = $fullVerses. '<br /> [Verse '.$verseCount.'] <br />'.$songContents[$i]['Verses'][$k]['Text'].'<br /><br />';
+		$fullVersesText = $fullVersesText. PHP_EOL. '[Verse '.$verseCount.'] '. PHP_EOL .$songContents[$i]['Verses'][$k]['Text'].PHP_EOL . PHP_EOL ;
+	}
 	
-	fclose($fp);
-	$ic++;
+	//web view
+	echo '<b>Title:</b> '.$songTitle.'<br /><br />';
+	echo '<b>Author:</b> '.$songAuthor.'<br />';
+	echo '<b>SongID:</b> '.$songGUID.'<br />';
+	echo '<b>Copyright:</b> '.$songCopyright.'<br /><br />';
+	
+	//text view
+	$fullStart = 'Title: '.$songTitle. PHP_EOL .
+	 'Author: '.$songAuthor. PHP_EOL .
+	 'SongID: '.$songGUID. PHP_EOL .
+	 'Copyright: '.$songCopyright. PHP_EOL .
+	 $fullVersesText. PHP_EOL ;
+	
+	echo $fullVerses. PHP_EOL ;
 	
 	
-	usleep(1000);
+	echo '--------------------------------------------------------------------<br />';
+	
+	//Create files in directory
+	$myfile = fopen($SongFilePath.'/'.clean($songTitle).'.txt', "w") or die("Unable to open file!");
+	fwrite($myfile, $fullStart);
+	fclose($myfile);
 }
 
-echo 
-$getLink.'<br />'
-.'<br />'.$get_product_title 
-.'<br />'.'Get your '.$get_last_word.' Here!'
-.'<br />';
-
-$bitlink = shortenU($getLink);
-//echo 'http://bit.ly/2J4WsL3'; //uncomment to test
-
-echo '<br /><br />'.$hashtags.'<br /><br /><br />';
-//.'<br />'.$link_list;
 
 ?>
 
-
-?>

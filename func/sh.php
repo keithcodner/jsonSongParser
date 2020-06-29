@@ -6,11 +6,11 @@ $current_process = "";
 /*DATE AND TIME*/
 $a_time = date("y-m-d", time());  
 $b_time = date("G:i:s", time());   
-$c_time = date("G-i-s", time()); 
+$c_time = date("G-i-s", time()); //folder friendly time
 $timeDate = $a_time." ".$b_time; 
 $dateOnly = $a_time;
 $timeOnly = $b_time;
-$folder_friendly_date_time = $a_time; 
+$folder_friendly_date_time = $a_time.'_'.$c_time; 
 
 
 $jql_start_date = '2017-01-01';
@@ -79,6 +79,7 @@ return $result;
   
 
 //----------------BITYLE API CALL----------------------
+/*
 function shortenU($url){
 	$login = 'o_6tvhnjr0u0';
 	$api_key = 'R_ac811b4262e94d4292a420814d1e27bc';
@@ -291,7 +292,7 @@ function jql_data_import($client, $recreate = 0){
 function client_calc($client){
 	
 }
-
+*/
 
 
 ?>
